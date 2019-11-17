@@ -1,0 +1,143 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"/>
+    <link rel="stylesheet" href= "{{ url_for('static',filename='css/style.css') }}"/>
+    <!-- 生产环境版本，优化了尺寸和速度 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/qs/dist/qs.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 登录框 -->
+        <el-dialog style="height:800px;"
+                   title="领取任务"
+                   :visible.sync="innerVisible"
+                   :show-close="false"
+                   append-to-body
+                   v-loading="loading"
+                   element-loading-text="获取任务中，请稍等"
+                   element-loading-spinner="el-icon-loading">
+            <template>
+                <el-form :model="form" ref="form" label-width="100px" class="demo-ruleForm"  @submit.native.prevent>
+                    <el-form-item label="邮箱前缀" prop="email" :rules="[{ required: true, message: '邮箱前缀不能为空'}]">
+                        <el-input type="text"
+                                  placeholder="输入邮箱前缀..."
+                                  v-model="form.email"
+                                  autocomplete="off"
+                                  @keyup.enter="submitForm('form')"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm('form')">提交</el-button>
+                        <el-button @click="resetForm('form')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </template>
+        </el-dialog>
+
+        <el-container>
+            <el-header style="text-align: right; font-size: 12px;border-bottom: 1px solid #e5e5e5">
+                <el-row>
+                    <el-col :span="2"></el-col>
+                    <el-col :span="8">
+                        <div class="title-font">样本人工清理</div>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="title-font">剩余</div>
+                    </el-col>
+                    <el-col :span="3">
+                        <div v-html="remain" class="title-font2"></div>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="title-font">张图片</div>
+                    </el-col>
+
+                </el-row>
+            </el-header>
+            ﻿
+            <el-main>
+                <template v-if="img_base64!=''&&warning_info==''">
+                    <el-row>
+                        <el-col :span="15">
+                            <div class="group-class">预测结果:<p v-html="label" class="title-font3"></p>
+                            </div>
+                            <div class="group-class">任务图片:</div>
+                            <div class="demo-image__placeholder">
+                                <div class="block">
+                                    <img class="img_class" style="width:600px" :src="img_base64">
+                                </div>
+                            </div>
+                        </el-col>
+                        <el-col :span="8">
+                            <div class="group-class">
+                                <div class="square">
+                                  <table class="square-inner table">
+                                    <tbody>
+                                      <tr>
+                                        <td></td>
+                                        <td>
+                                            <el-button class="arrow-button" type="success" @click="label_image('0')"> 👆</el-button>
+                                        </td>
+                                        <td></td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                            <el-button class="arrow-button" type="success" @click="label_image('270')">👈</el-button>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <el-button class="arrow-button" type="success"   @click="label_image('90')"> 👉</el-button>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td></td>
+                                        <td>
+                                            <el-button class="arrow-button" type="success"   @click="label_image('180')">👇</el-button>
+                                        </td>
+                                        <td></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                            </div>
+                            <div class="group-class">
+                                <el-alert
+                                        title="样本过滤说明"
+                                        type="info"
+                                        effect="dark"
+                                        show-icon>
+                                    <template slot='title'>
+                                        <div>1.匹配完全正确才算正确，模棱两可或者字数不全的都为错误。</div>
+                                        <div>2.预计需要2小时，可以关闭，下次继续。</div>
+                                        <div>3.辛苦辛苦</div>
+                                    </template>
+                                </el-alert>
+                            </div>
+                        </el-col>
+                    </el-row>
+
+                </template>
+                <template>
+                    <el-row>
+                        <el-col :span="12">
+                            <div class="group-class">
+                                <p v-html="warning_info"></p>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+            </el-main>
+            <el-footer>
+
+            </el-footer>
+        <el-container>
+
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="{{ url_for('static',filename='js/index.js') }}"></script>
+</body>
+
+</html>

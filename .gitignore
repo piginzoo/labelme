@@ -1,0 +1,5 @@
+.idea/
+crnn/data/
+**/*.pyc
+rotate/data
+__pycache__

@@ -1,0 +1,60 @@
+.block {
+    margin-bottom: 10px;
+    margin-left: 40px;
+    margin-top: 50px;
+}
+
+.el-header {
+    color: #333;
+    line-height: 60px;
+}
+
+.arrow-button {
+    height:100px;
+    width:100px;
+    font-size: 50px;
+}
+
+.el-aside {
+    color: #333;
+}
+
+.title-font {
+    float: left;
+    font-family: Microsoft YaHei;
+    font-size: 25px;
+}
+
+.title-font2 {
+    float: left;
+    font-family: Microsoft YaHei;
+    font-size: 30px;
+    text-align: center;
+    color:blue;
+}
+
+.title-font3 {
+    font-family: Microsoft YaHei;
+    font-size: 30px;
+    color:blue;
+}
+
+.group-class {
+    font-family: Microsoft YaHei;
+    font-size: 20px;
+    margin-top: 30px;
+    margin-left: 15px;
+    margin-bottom: 30px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+﻿.el-main {
+    background-color: #E9EEF3;
+    color: #333;
+    text-align: center;
+    line-height: 400px;
+}
