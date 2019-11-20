@@ -20,7 +20,7 @@ fi
 nohup \
 gunicorn\
     web.labelme_server:app \
-    --workers=1 \
+    --workers=10 \
     --worker-class=gevent \
     --bind=0.0.0.0:$1 \
     --timeout=300

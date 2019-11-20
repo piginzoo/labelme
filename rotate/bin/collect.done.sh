@@ -1,5 +1,4 @@
-echo "收集第一次标注的文件（即lablel.done.txt)"
-
+echo "收集第一次标注的文件（即lablel.done.txt)，注意，是未校验的"
 
 if [ -e "data/train.txt" ]; then
     Date=$(date +%Y%m%d%H%M%S)
