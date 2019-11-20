@@ -16,7 +16,7 @@ everyone!
 '''
 
 # 每个人的任务数
-task_num_person = 10
+task_num_person = 1000
 
 # data root目录
 data_root = "data"

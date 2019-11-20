@@ -23,5 +23,5 @@ gunicorn\
     --workers=10 \
     --worker-class=gevent \
     --bind=0.0.0.0:$1 \
-    --timeout=300
+    --timeout=300 \
     >> /dev/null 2>&1 &
