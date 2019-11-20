@@ -2,7 +2,7 @@ echo "把标注好的(data/train.txt)文件、标注坏(data/bad.txt)的文件�
 
 Date=$(date +%Y%m%d%H%M%S)
 
-if [ ! -d "data/train.txt" ]; then
+if [ ! -e "data/train.txt" ]; then
 	echo "无法找到data/train.txt，退出"
 	exit -1
 fi
