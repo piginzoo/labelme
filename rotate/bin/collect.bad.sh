@@ -6,6 +6,6 @@ if [ -e "data/bad.txt" ]; then
     mv data/bad.txt data/backup/bad.$Date.txt
 fi
 
-find data/everyone -name "label.bad.txt"|xargs cat > data/bad.txt
+find data/everyone -name "bad.bill.txt"|xargs cat > data/bad.txt
 
 echo "收集完毕"
