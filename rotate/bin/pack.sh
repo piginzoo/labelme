@@ -13,14 +13,14 @@ fi
 
 echo "正在收集标注好的数据：train.txt"
 mkdir data/train.temp
-cat data/train.txt|awk '{print $2}'|xargs cp {} data/train.temp
+cat data/train.txt|awk '{print $1}'|xargs cp {} data/train.temp
 tar czvf  data/pack/pack.train.$Date.tar.gz data/train.temp/
 echo "标注文件们收集完了：pack.train.$Date.tar.gz"
 
 if [ -e "data/bad.txt" ]; then
     echo "正在收集坏的数据：data/bad.txt"
     mkdir data/bad.temp
-    cat data/bad.txt|awk '{print $2}'|xargs cp {} data/bad.temp
+    cat data/bad.txt|awk '{print $1}'|xargs cp {} data/bad.temp
     tar czvf  data/pack/pack.bad.$Date.tar.gz data/bad.temp/
     echo "坏文件们收集完了：data/pack.bad.$Date.tar.gz"
 fi
