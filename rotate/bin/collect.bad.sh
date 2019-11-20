@@ -2,7 +2,7 @@ echo "收集不是标准样本的坏样本（为了做2分类，比如区别非�
 
 if [ -e "data/bad.txt" ]; then
     Date=$(date +%Y%m%d%H%M%S)
-	echo "已收集的data/bad.txt存在，自动备份到：data/bad.$Date.txt"
+	echo "已收集的data/bad.txt存在，自动备份到：data/backup/bad.$Date.txt"
     mv data/bad.txt data/backup/bad.$Date.txt
 fi
 
