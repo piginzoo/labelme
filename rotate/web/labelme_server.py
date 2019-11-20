@@ -1,12 +1,12 @@
 #-*- coding:utf-8 -*-
 from flask import Flask,jsonify,request,render_template
 import logging
-import  threading
+import threading
 import base64
-from common import utils
 import os
+from commons.file import LabelDoneProcessor
+from commons import utils
 import conf
-from common.file import LabelDoneProcessor
 
 utils.init_logger()
 app = Flask(__name__)
@@ -33,7 +33,7 @@ def load_img_base64(img_local_path):
 def get_one_image(user_name):
     user_file_path = utils.get_label_file_path(user_name)
 
-    from common.file import ReadFile
+    from commons.file import ReadFile
     fp = ReadFile(user_file_path)
     line,num = fp.read_one_line() # num=-1意味着没有剩余了
 
@@ -87,7 +87,7 @@ class InitialUserSpaceThread(threading.Thread):
         if lock.acquire():
             logger.info("邮箱前缀为" + self.args + "的任务开始执行")
             # time.sleep(3)
-            from common.file import AssignFileProcessor
+            from commons.file import AssignFileProcessor
             user_file_path = utils.get_label_file_path(self.args)
             raw_file_path = os.path.join(conf.data_root,conf.raw_txt)
             afp = AssignFileProcessor(raw_file_path,user_file_path,conf.task_num_person)
@@ -104,6 +104,15 @@ def label():
     label_me(username,type,img_path)
     return 'ok'
 
+# 图片标注
+@app.route('/bad_bill',methods=['POST'])
+def bad_bill():
+    username = request.json.get('username')
+    img_path = request.json.get('img_path')
+    bad_bill_me(username,img_path)
+    return 'ok'
+
+
 # 如果正确的图片移到good下，错误的图片移到bad下
 def label_me(user_name,type,img_path):
     user_label_file_path = utils.get_label_file_path(user_name)
@@ -112,6 +121,14 @@ def label_me(user_name,type,img_path):
     ldp.do(img_path,type)
 
 
-if __name__ == '__main__':
+# 如果正确的图片移到good下，错误的图片移到bad下
+def bad_bill_me(user_name,img_path):
+    user_label_file_path = utils.get_label_file_path(user_name)
+    user_label_done_file_path = utils.get_bad_txt_file_path(user_name)
+    ldp = LabelDoneProcessor(user_label_file_path,user_label_done_file_path)
+    ldp.do(img_path,"0") # ""是为了兼容函数
 
+if __name__ == '__main__':
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(debug=True, port=8082)

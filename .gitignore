@@ -3,3 +3,4 @@ crnn/data/
 **/*.pyc
 rotate/data
 __pycache__
+logs/

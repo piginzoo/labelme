@@ -97,6 +97,35 @@ new Vue({
                         message: '操作失败，服务器发生错误'
                     });
                 });
+        },
+        //标注不是单据
+        bad_bill(){
+            var _this = this;
+            var img_src = _this.img_src;
+            var email = _this.form.email;
+            var data = {
+                "img_path": img_src,
+                "username": email
+            };
+            axios.post(_this.host + '/bad_bill', data, {
+                    'Content-Type': 'application/json'
+                })
+                .then(function(response) {
+                    var data = response.data;
+                    if(data=='ok'){
+                        _this.start(email)
+                    }else{
+                        _this.$message({
+                            type: 'error',
+                            message: '操作失败，原因：' + data
+                        });
+                    }
+                }).catch(() => {
+                    _this.$message({
+                        type: 'error',
+                        message: '操作失败，服务器发生错误'
+                });
+            });
         }
 
     }

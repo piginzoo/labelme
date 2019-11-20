@@ -33,6 +33,8 @@ label_txt = 'label.txt'
 #
 label_done_txt = 'label.done.txt'
 
+#
+bad_bill_txt = 'bad.bill.txt'
 
 # 分出图片的路径
 everyone_dir = "everyone"

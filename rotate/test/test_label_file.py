@@ -1,6 +1,6 @@
 import unittest,os
-from common.file import AssignFileProcessor,LabelDoneProcessor,ReadFile
-from common import utils
+from commons.file import AssignFileProcessor,LabelDoneProcessor,ReadFile
+from commons import utils
 class TestDict(unittest.TestCase):
 
     @classmethod

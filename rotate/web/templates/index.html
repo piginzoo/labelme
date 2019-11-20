@@ -73,6 +73,7 @@
                         <el-col :span="8">
                             <div class="group-class">
                                 <div class="square">
+                                    <h2>单据方向：</h2>
                                   <table class="square-inner table">
                                     <tbody>
                                       <tr>
@@ -103,15 +104,17 @@
                                 </div>
                             </div>
                             <div class="group-class">
+                                <h2>不是单据：</h2>
+                               <el-button class="bad-button" type="danger"   @click="bad_bill()">&nbsp;☠️&nbsp;</el-button>
+                            </div>
+                            <div class="group-class">
                                 <el-alert
                                         title="样本过滤说明"
                                         type="info"
                                         effect="dark"
                                         show-icon>
                                     <template slot='title'>
-                                        <div>1.匹配完全正确才算正确，模棱两可或者字数不全的都为错误。</div>
-                                        <div>2.预计需要2小时，可以关闭，下次继续。</div>
-                                        <div>3.辛苦辛苦</div>
+                                        <div></div>
                                     </template>
                                 </el-alert>
                             </div>

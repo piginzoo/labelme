@@ -15,6 +15,12 @@
     font-size: 50px;
 }
 
+.bad-button{
+    height:200px;
+    width:200px;
+    font-size: 100px;
+}
+
 .el-aside {
     color: #333;
 }
