@@ -15,6 +15,9 @@ everyone!
     |-train.txt # 从用户的label.txt合并后的文件（靠batch）
 '''
 
+# 返回缩放的图片
+resize=0.3
+
 # 每个人的任务数
 task_num_person = 1000
 

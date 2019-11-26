@@ -7,6 +7,7 @@ import os
 from commons.file import LabelDoneProcessor
 from commons import utils
 import conf
+import cv2
 
 utils.init_logger()
 app = Flask(__name__)
@@ -24,9 +25,14 @@ def load_img_base64(img_local_path):
     if not os.path.exists(img_local_path):
         logger.warning("样本文件找不到啊：%s",img_local_path)
         return None
-    with open(img_local_path, 'rb') as img_f:
-        img_stream = img_f.read()
-        img_stream = base64.b64encode(img_stream)
+
+    image = cv2.imread(img_local_path)
+    if conf.resize!=1:
+        image = cv2.resize(image,fx=conf.resize,fy=conf.resize)
+        logger.debug("图片Resize:%f,%s",conf.resize,img_local_path)
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    img_stream = base64.b64encode(image)
     return str(img_stream,'utf-8')
 
 # 取其中的一张图
@@ -67,7 +73,7 @@ def start():
         t.join()
 
     # 已经有任务,获取第一张图片
-    logger.info("邮箱前缀为" + username + "，开始获取第一张图片")
+    logger.info("邮箱前缀为" + username + "，获取一张图片")
     img_path,num = get_one_image(username) #num: -1意味着没有剩余了
     if img_path is None:
         img_stream = ""
