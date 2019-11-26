@@ -28,7 +28,7 @@ def load_img_base64(img_local_path):
 
     image = cv2.imread(img_local_path)
     if conf.resize!=1:
-        image = cv2.resize(image,fx=conf.resize,fy=conf.resize)
+        image = cv2.resize(image,(0,0),fx=conf.resize,fy=conf.resize)
         logger.debug("图片Resize:%f,%s",conf.resize,img_local_path)
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
