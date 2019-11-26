@@ -31,8 +31,8 @@ def load_img_base64(img_local_path):
         image = cv2.resize(image,(0,0),fx=conf.resize,fy=conf.resize)
         logger.debug("图片Resize:%f,%s",conf.resize,img_local_path)
 
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    img_stream = base64.b64encode(image)
+    base64_str = cv2.imencode('.jpg',image)[1].tostring()
+    img_stream = base64.b64encode(base64_str)
     return str(img_stream,'utf-8')
 
 # 取其中的一张图
