@@ -16,6 +16,17 @@ if [ "$1" = "" ]; then
     exit
 fi
 
+backup(){
+    Date=$(date +%Y%m%d%H%M%S)
+    if [ ! -d "data/backup" ]; then
+        mkdir data/backup
+    fi
+    tar czvf  data/backup/backup.$Date.tar.gz data/raw.txt data/train.txt data/train.done.txt data/everyone/
+    echo "备份旧的train.txt\raw.txt、trian.done.txt、everyone目录"
+}
+
+# 先备个份！太危险了！
+backup
 
 nohup \
 gunicorn\

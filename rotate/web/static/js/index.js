@@ -15,7 +15,8 @@ new Vue({
         warning_info: '',
         loading: false,
         //剩余文件数
-        remain:''
+        remain:'',
+        mode:''
     },
     created: function() {},
     filters: {
@@ -60,6 +61,7 @@ new Vue({
                     _this.img_src = data.img_path;
                     _this.label = data.label;
                     _this.remain = data.remain;
+                    _this.mode = data.mode;
                 }).catch(() => {
                     _this.$message({
                         type: 'error',
@@ -98,8 +100,7 @@ new Vue({
                     });
                 });
         },
-        //标注不是单据
-        bad_bill(){
+        good(){
             var _this = this;
             var img_src = _this.img_src;
             var email = _this.form.email;
@@ -107,7 +108,62 @@ new Vue({
                 "img_path": img_src,
                 "username": email
             };
-            axios.post(_this.host + '/bad_bill', data, {
+            axios.post(_this.host + '/good', data, {
+                    'Content-Type': 'application/json'
+                })
+                .then(function(response) {
+                    var data = response.data;
+                    if(data=='ok'){
+                        _this.start(email)
+                    }else{
+                        _this.$message({
+                            type: 'error',
+                            message: '操作失败，原因：' + data
+                        });
+                    }
+                }).catch(() => {
+                    _this.$message({
+                        type: 'error',
+                        message: '操作失败，服务器发生错误'
+                });
+            });
+        },
+        //标注不是单据
+        bad(){
+            var _this = this;
+            var img_src = _this.img_src;
+            var email = _this.form.email;
+            var data = {
+                "username": email
+            };
+            axios.post(_this.host + '/bad', data, {
+                    'Content-Type': 'application/json'
+                })
+                .then(function(response) {
+                    var data = response.data;
+                    if(data=='ok'){
+                        _this.start(email)
+                    }else{
+                        _this.$message({
+                            type: 'error',
+                            message: '操作失败，原因：' + data
+                        });
+                    }
+                }).catch(() => {
+                    _this.$message({
+                        type: 'error',
+                        message: '操作失败，服务器发生错误'
+                });
+            });
+        },
+        //返回前一张
+        rollback(){
+            var _this = this;
+            var email = _this.form.email;
+            var data = {
+                "username": email
+            };
+            axios.post(_this.host + '/rollback', data, {
                     'Content-Type': 'application/json'
                 })
                 .then(function(response) {

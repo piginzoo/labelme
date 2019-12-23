@@ -61,7 +61,7 @@
                 <template v-if="img_base64!=''&&warning_info==''">
                     <el-row>
                         <el-col :span="15">
-                            <div class="group-class">预测结果:<p v-html="label" class="title-font3"></p>
+                            <div class="group-class">期盼的结果:<p v-html="label" class="title-font3"></p>
                             </div>
                             <div class="group-class">任务图片:</div>
                             <div class="demo-image__placeholder">
@@ -71,42 +71,62 @@
                             </div>
                         </el-col>
                         <el-col :span="8">
+                                !!! <div v-html="mode"></div>
+
+                                <template v-if="mode=='check'">
+                                    <!--用来做判断，是好的样本，还是差的样本-->
+                                    <h2>判断正确与否：</h2>
+                                    <div class="group-class">
+                                        <el-button class="bad-button" type="success" icon="el-icon-check" @click="good()"></el-button>
+                                        <el-button class="bad-button" type="danger" icon="el-icon-close" @click="bad()"></el-button>
+                                    </div>
+                                </template>
+
+                                <template v-if="mode=='rotate'">
+                                    <!--用来做4方向标注-->
+                                    <div class="square">
+                                        <h2>单据方向：</h2>
+                                      <table class="square-inner table">
+                                        <tbody>
+                                          <tr>
+                                            <td></td>
+                                            <td>
+                                                <el-button class="arrow-button" type="success" @click="label_image('0')"> 👆</el-button>
+                                            </td>
+                                            <td></td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                                <el-button class="arrow-button" type="success" @click="label_image('270')">👈</el-button>
+                                            </td>
+                                            <td></td>
+                                            <td>
+                                                <el-button class="arrow-button" type="success"   @click="label_image('90')"> 👉</el-button>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td></td>
+                                            <td>
+                                                <el-button class="arrow-button" type="success"   @click="label_image('180')">👇</el-button>
+                                            </td>
+                                            <td></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+
+                                    <div class="group-class">
+                                        <h2>不是单据：</h2>
+                                       <el-button class="bad-button" type="warning"   @click="bad()">&nbsp;☠️&nbsp;</el-button>
+                                    </div>
+                                </template>
+
                             <div class="group-class">
-                                <div class="square">
-                                    <h2>单据方向：</h2>
-                                  <table class="square-inner table">
-                                    <tbody>
-                                      <tr>
-                                        <td></td>
-                                        <td>
-                                            <el-button class="arrow-button" type="success" @click="label_image('0')"> 👆</el-button>
-                                        </td>
-                                        <td></td>
-                                      </tr>
-                                      <tr>
-                                        <td>
-                                            <el-button class="arrow-button" type="success" @click="label_image('270')">👈</el-button>
-                                        </td>
-                                        <td></td>
-                                        <td>
-                                            <el-button class="arrow-button" type="success"   @click="label_image('90')"> 👉</el-button>
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td></td>
-                                        <td>
-                                            <el-button class="arrow-button" type="success"   @click="label_image('180')">👇</el-button>
-                                        </td>
-                                        <td></td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div>
+                                <h2>我要反悔：</h2>
+                                <p>（返回前一张）</p>
+                               <el-button class="bad-button" type="danger"   @click="rollback()">🔙</el-button>
                             </div>
-                            <div class="group-class">
-                                <h2>不是单据：</h2>
-                               <el-button class="bad-button" type="danger"   @click="bad_bill()">&nbsp;☠️&nbsp;</el-button>
-                            </div>
+
                             <div class="group-class">
                                 <el-alert
                                         title="样本过滤说明"
@@ -118,6 +138,7 @@
                                     </template>
                                 </el-alert>
                             </div>
+
                         </el-col>
                     </el-row>
 

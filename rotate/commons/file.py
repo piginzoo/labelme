@@ -26,36 +26,77 @@ python的文件处理方式：
     a+ 可读可写，从文件顶部读取内容 从文件底部添加内容 不存在则创建
 '''
 
+# 标注，用于把label.txt=>label.done.txt中
+# 也支持回滚，只要把do(image=None)即可，他使用done文件中的最后一行
 class LabelDoneProcessor:
-    def __init__(self,label_path,label_done_path):
-        if not os.path.exists(label_path):
-            raise FileExistsError("源文件不存在："+label_path)
+    def __init__(self,src_path,dst_path):
+        # if not os.path.exists(src_path):
+        #     raise FileExistsError("源文件不存在："+label_path)
+        self.src_path = src_path
+        self.dst_path = dst_path
 
-        self.label_file = open(label_path,"r+")
-        self.label_path = label_path
+    # 标注为坏样本
+    def bad(self):
+        return self.__do(None,None)
 
-        self.label_done_file = open(label_done_path,"a")
-        self.label_done_path = label_done_path
+    # 标注为好样本
+    def good(self):
+        return self.__do(None,None)
 
-    def do(self,image,label):
-        lines = self.label_file.readlines()
-        if len(lines)==0:
-            logger.warning("个人标注文件已经没有内容了")
-            return False
-        lines = lines[1:] # 去除第一行
-        self.label_file.close()
+    # 标注他
+    def label(self,image,label):
+        return self.__do(image,label)
 
-        new_label_file = open(self.label_path,"w")
-        new_label_file.writelines(lines)
-        new_label_file.close()
-        logger.debug("个人标注文件已更新：%s",self.label_path)
+    # 回滚他
+    def rollback(self):
+        return self.__do(None,None)
 
-        self.label_done_file.write(image+" "+label)
-        self.label_done_file.write("\n")
-        self.label_done_file.close()
-        logger.debug("个人标注完成文件(Done)已更新：%s", self.label_done_path)
+    # image,label=None的时候，只是把label.txt/good.txt最后一行，搬家到bad.txt而已，不做处理
+    def __do(self,image,label):
 
+        # 读源src文件，取出最后一行
 
+        if not os.path.exists(self.src_path):
+            logger.error("源src文件[%s]不存在",self.src_path)
+            return "文件不存在："+self.src_path
+
+        src_file = open(self.src_path, "r+")
+        src_lines = src_file.readlines()
+        if len(src_lines)==0:
+            logger.warning("源src文件[%s]已经没有内容了，无法往目标dst文件搬运了",self.src_path)
+            return "到头了，无法回滚了"
+        src_left_lines = src_lines[:-1] # 去除最后一行，剩下的行
+        last_line = src_lines[-1]  # 去除最后一行
+        src_file.close() # 先把src文件关上
+
+        # 更新源src文件
+        new_src_file = open(self.src_path,"w")
+        new_src_file.writelines(src_left_lines)
+        new_src_file.close()
+        logger.debug("源src文件已更新（去除了最后一行）：%s",self.src_path)
+
+        # 追加源src的最后一行到目标dst文件中
+        dst_file = open(self.dst_path, "a")
+
+        if image is None:
+            try:
+                content = last_line.strip().split()[0]
+            except Exception as e:
+                str = "解析行错误{}:{}".format(last_line, str(e))
+                logger.error(str)
+                dst_file.close()
+                return str
+        else:
+            content = image + " " + label
+
+        dst_file.write(content)
+        logger.debug("目标dst文件尾部插入：%s", content)
+        dst_file.write("\n")
+        dst_file.close()
+        logger.debug("目标dst文件更新：%s", self.dst_path)
+        return 'ok'
+
+# 处理把一个文件中的N行放到另外一个文件中
 class AssignFileProcessor:
 
     def __init__(self,src_path,dst_path,assign_num):
@@ -103,10 +144,10 @@ class ReadFile:
         lines = self.file.readlines()
         self.file.close()
         if len(lines)==0:
-            logger.debug("无法读出第一行，无数据了")
+            logger.debug("无法读出最后一行，无数据了")
             return None,-1 # -1意味着没有剩余了
-        logger.debug("读出标签文件中的第一行：%s",lines[0])
-        return lines[0].strip(),len(lines) - 1
+        logger.debug("读出标签文件中的最后一行：%s",lines[0])
+        return lines[-1].strip(),len(lines) - 1
 
     def __init__(self, file_path):
         if not os.path.exists(file_path):

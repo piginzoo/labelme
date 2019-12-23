@@ -1,1 +1,1 @@
-python -m unittest -v $1
+python -m unittest -v test.test_label_file

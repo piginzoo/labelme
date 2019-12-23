@@ -15,11 +15,22 @@ everyone!
     |-train.txt # 从用户的label.txt合并后的文件（靠batch）
 '''
 
+# 常量设置
+MODE_CHECK = "check"
+MODE_ROTATE = "rotate"
+ACTION_GOOD = "good"
+ACTION_BAD = "bad"
+ACTION_LABEL = "label"
+ACTION = 'action'
+
+# 模式：目前支持2中：校验check、和4方向标注rotate
+mode= MODE_CHECK
+
 # 返回缩放的图片
 resize=0.3
 
 # 每个人的任务数
-task_num_person = 1000
+task_num_person = 5
 
 # data root目录
 data_root = "data"
@@ -32,6 +43,9 @@ raw_txt = 'raw.txt'
 
 #
 label_txt = 'label.txt'
+
+#
+check_txt = 'check.txt'
 
 #
 label_done_txt = 'label.done.txt'

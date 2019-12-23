@@ -6,6 +6,8 @@ if [ "$1" = "stop" ]; then
     exit
 fi
 
+
+
 #nohup \
 gunicorn\
     web.server:app \

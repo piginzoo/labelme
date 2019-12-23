@@ -12,21 +12,57 @@ def __get_file_path(user_name):
         os.makedirs(user_dir)
     return user_dir
 
+# 回滚有4种方式：
+# ------------------------------------------------
+# mode=rotate,action=label: label.done.txt => label.txt
+# mode=rotate,action=bad:   bad.txt => label.txt
+# ------------------------------------------------
+# mode=check,action=bad :   good.txt => check.txt
+# mode=check,action=good:   bad.txt => check.txt
+def get_rollback_file_path(user_name,last_action):
+
+    if last_action==conf.ACTION_BAD:
+        get_bad_txt_file_path(user_name), get_label_file_path(user_name)
+        return get_bad_txt_file_path(user_name),    get_label_file_path(user_name)
+
+    if last_action==conf.ACTION_LABEL or last_action==conf.ACTION_GOOD:
+        return get_label_done_file_path(user_name), get_label_file_path(user_name)
+
+    logger.warning("无法找到合适的回滚文件：user_name=%s,last_action=%s",user_name,last_action)
+    return None,None
+
 def get_label_file_path(user_name):
     user_dir = __get_file_path(user_name)
 
-    # 用户对应的txt
-    user_txt_path = os.path.join(user_dir, conf.label_txt)
-    logger.debug("根据用户名[%s]，得到标签文件Label.txt路径：%s",user_name,user_txt_path)
+    if conf.mode == conf.MODE_ROTATE:
+        user_txt_path = os.path.join(user_dir, conf.label_txt)
+
+    if conf.mode == conf.MODE_CHECK:
+        user_txt_path = os.path.join(user_dir, conf.check_txt)
+
+    logger.debug("根据用户名[%s]，得到标签文件路径：%s",user_name,user_txt_path)
     return user_txt_path
+
+# 得到原始的总的样本的文件，如果是任务是rotate，文件叫raw.txt，如果是check任务，文件是train.txt
+def get_label_repository_file_path():
+    if conf.mode == conf.MODE_ROTATE:
+        return os.path.join(conf.data_root,conf.raw_txt)
+
+    if conf.mode == conf.MODE_CHECK:
+        return os.path.join(conf.data_root,conf.train_txt)
+
+    return None
 
 def get_label_done_file_path(user_name):
     user_dir = __get_file_path(user_name)
-    # 用户对应的txt
-    user_txt_path = os.path.join(user_dir, conf.label_done_txt)
-    logger.debug("根据用户名[%s]，得到完成标签Label.Done.txt文件路径：%s",user_name,user_txt_path)
-    return user_txt_path
+    if conf.mode == conf.MODE_ROTATE:
+        user_txt_path = os.path.join(user_dir, conf.label_done_txt)
 
+    if conf.mode == conf.MODE_CHECK:
+        user_txt_path = os.path.join(user_dir, conf.good_txt)
+
+    logger.debug("根据用户名[%s]，得到完成标签文件路径：%s",user_name,user_txt_path)
+    return user_txt_path
 
 def get_bad_txt_file_path(user_name):
     user_dir = __get_file_path(user_name)

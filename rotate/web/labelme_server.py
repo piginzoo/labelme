@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*-
-from flask import Flask,jsonify,request,render_template
+from flask import Flask,jsonify,request,render_template,session
 import logging
 import threading
 import base64
@@ -11,15 +11,20 @@ import cv2
 
 utils.init_logger()
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '123456'
 person_img_num = 2000
 logger = logging.getLogger("WebServer")
 lock = threading.Lock()
 logger = logging.getLogger(__name__)
 
+if conf.mode == conf.MODE_CHECK:
+    logger.info("2次标注模式")
+if conf.mode == conf.MODE_ROTATE:
+    logger.info("4方向标注模式")
+
 @app.route("/")
 def index():
     return render_template('index.html',version="version")
-
 
 def load_img_base64(img_local_path):
     if not os.path.exists(img_local_path):
@@ -48,15 +53,12 @@ def get_one_image(user_name):
 
 # 得到用户目前的状态
 def get_status(user_name):
-    # 用户目录
-    user_path = os.path.join(conf.data_root,conf.everyone_dir,user_name)
     # 用户标注的文件
-    txt_path = os.path.join(user_path,conf.label_txt)
-    logger.debug("用户目录：%s",user_path)
-    logger.debug("用户文件：%s",txt_path)
+    txt_path = utils.get_label_file_path(user_name)
+    logger.debug("等待用户标注的文件：%s",txt_path)
 
     if not os.path.exists(txt_path):
-        logger.info("用户路径[%s]不存在",txt_path)
+        logger.info("等待用户标注的文件[%s]不存在",txt_path)
         return False
     else:
         return True
@@ -74,15 +76,28 @@ def start():
 
     # 已经有任务,获取第一张图片
     logger.info("邮箱前缀为" + username + "，获取一张图片")
-    img_path,num = get_one_image(username) #num: -1意味着没有剩余了
-    if img_path is None:
-        img_stream = ""
-        logger.info("邮箱前缀为" + username + "没有图片可以标注了")
-    else:
-        img_stream = load_img_base64(img_path)
-        logger.info("邮箱前缀为" + username + "的图片获取成功")
+    line,num = get_one_image(username) #num: -1意味着没有剩余了
 
-    return jsonify({'img_stream': str(img_stream),'img_path':img_path,'remain':num})
+    if line is None:
+        logger.info("邮箱前缀为" + username + "没有图片可以标注了")
+        return jsonify({'img_stream':''})
+
+    cols = line.split()
+    logger.debug(cols)
+    if len(cols)==0:
+        logger.warning("标签文件中读出的行为空")
+        return ""
+    if len(cols)==1:
+        image_path = cols[0]
+        label = ""
+    else:
+        image_path = cols[0]
+        label = " ".join(cols[1:])
+
+    img_stream = load_img_base64(image_path)
+    logger.info("[%s]获得[%s]/[%s]",username,image_path,label)
+
+    return jsonify({'img_stream': str(img_stream),'img_path':image_path,'label':label,'remain':num,'mode':conf.mode})
 
 # 这个线程类，用来从大库里领取文件
 class InitialUserSpaceThread(threading.Thread):
@@ -95,8 +110,8 @@ class InitialUserSpaceThread(threading.Thread):
             # time.sleep(3)
             from commons.file import AssignFileProcessor
             user_file_path = utils.get_label_file_path(self.args)
-            raw_file_path = os.path.join(conf.data_root,conf.raw_txt)
-            afp = AssignFileProcessor(raw_file_path,user_file_path,conf.task_num_person)
+            repository_file = utils.get_label_repository_file_path()
+            afp = AssignFileProcessor(repository_file,user_file_path,conf.task_num_person)
             afp.process()
             logger.info("邮箱前缀为" + self.args + "的任务获取成功")
             lock.release()
@@ -104,35 +119,74 @@ class InitialUserSpaceThread(threading.Thread):
 # 图片标注
 @app.route('/label',methods=['POST'])
 def label():
+    __pre_process(conf.ACTION_LABEL)
     username = request.json.get('username')
-    type = request.json.get('type')
     img_path = request.json.get('img_path')
-    label_me(username,type,img_path)
-    return 'ok'
+    type = request.json.get('type')
+    r = __label_me(username,type,img_path)
+    if r is None: return 'ok'
+    return r
 
 # 图片标注
-@app.route('/bad_bill',methods=['POST'])
-def bad_bill():
+@app.route('/bad',methods=['POST'])
+def bad():
+    __pre_process(conf.ACTION_BAD)
     username = request.json.get('username')
     img_path = request.json.get('img_path')
-    bad_bill_me(username,img_path)
-    return 'ok'
+    r = __bad(username)
+    if r is None: return 'ok'
+    return r
 
+# 返回前一张
+@app.route('/rollback',methods=['POST'])
+def rollback():
+    username = request.json.get('username')
+    r = __rollback_me(username)
+    if r is None: return 'ok'
+    return r
+
+# 图片判定是好的，还是坏的，针对2次check标注完的内容的
+@app.route('/good',methods=['POST'])
+def good():
+    __pre_process(conf.ACTION_GOOD)
+    username = request.json.get('username')
+    img_path = request.json.get('img_path')
+    return __good(username)
+
+# 记录一下动作
+def __pre_process(action):
+    session[conf.ACTION] = action
 
 # 如果正确的图片移到good下，错误的图片移到bad下
-def label_me(user_name,type,img_path):
+def __good(user_name):
+    check_path = utils.get_label_file_path(user_name)
+    good_path = utils.get_label_done_file_path(user_name)
+    if check_path is None or good_path is None:
+        return "无法找到回滚文件"
+    ldp = LabelDoneProcessor(src_path=check_path,dst_path=good_path)
+    return ldp.good()
+
+# 如果正确的图片移到good下，错误的图片移到bad下
+def __rollback_me(user_name):
+    src,dst = utils.get_rollback_file_path(user_name,session[conf.ACTION])
+    if src is None or dst is None:
+        return "无法找到回滚文件"
+    ldp = LabelDoneProcessor(src_path=src,dst_path=dst)
+    return ldp.rollback()
+
+# 如果正确的图片移到good下，错误的图片移到bad下
+def __label_me(user_name,type,img_path):
     user_label_file_path = utils.get_label_file_path(user_name)
     user_label_done_file_path = utils.get_label_done_file_path(user_name)
     ldp = LabelDoneProcessor(user_label_file_path,user_label_done_file_path)
-    ldp.do(img_path,type)
-
+    return ldp.label(img_path,type)
 
 # 如果正确的图片移到good下，错误的图片移到bad下
-def bad_bill_me(user_name,img_path):
-    user_label_file_path = utils.get_label_file_path(user_name)
-    user_label_done_file_path = utils.get_bad_txt_file_path(user_name)
-    ldp = LabelDoneProcessor(user_label_file_path,user_label_done_file_path)
-    ldp.do(img_path,"0") # ""是为了兼容函数
+def __bad(user_name):
+    good_path = utils.get_label_file_path(user_name)
+    bad_path = utils.get_bad_txt_file_path(user_name)
+    ldp = LabelDoneProcessor(good_path,bad_path)
+    return ldp.bad()
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
