@@ -1,5 +1,6 @@
 import os
 import logging
+from commons import utils
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +79,10 @@ class LabelDoneProcessor:
         # 追加源src的最后一行到目标dst文件中
         dst_file = open(self.dst_path, "a")
 
+        # 这个不考虑前台传过的内容，只用源src文件的最后一行
         if image is None:
             try:
-                content = last_line.strip().split()[0]
+                content = utils.get_rollback_line(last_line)
             except Exception as e:
                 str = "解析行错误{}:{}".format(last_line, str(e))
                 logger.error(str)

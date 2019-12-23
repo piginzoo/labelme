@@ -31,6 +31,17 @@ def get_rollback_file_path(user_name,last_action):
     logger.warning("无法找到合适的回滚文件：user_name=%s,last_action=%s",user_name,last_action)
     return None,None
 
+
+def get_rollback_line(line):
+    if conf.mode == conf.MODE_ROTATE:
+        return line.strip().split()[0]
+
+    if conf.mode == conf.MODE_CHECK:
+        return line
+
+    return None
+
+
 def get_label_file_path(user_name):
     user_dir = __get_file_path(user_name)
 
