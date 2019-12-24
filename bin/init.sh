@@ -1,5 +1,10 @@
-if [ ! -d "data/images" ]; then
-	echo "图片必须要放到[data/images]目录下"
+if [ "$1" == "" ]; then
+	echo "命令格式：init.sh <图片目录>"
+	exit -1
+fi
+
+if [ ! -d $1 ]; then
+	echo "图片目录不存在"
 	exit -1
 fi
 
@@ -13,6 +18,6 @@ if [ -e "data/raw.txt" ]; then
 fi
 
 
-ls -Al data/images/*|awk '{print $9}'>data/raw.txt
+ls -Al $1/*|awk '{print $9}'>data/raw.txt
 
 echo "已生成数据文件data/raw.txt，可以启动标注服务了！"
