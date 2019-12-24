@@ -28,14 +28,14 @@ everyone!
     |
     |--[piginzoo]
     |       |
-    |       |--label.txt        # 打标文件，会一行行的减少
-    |       |--label.done.txt   # 打标完成文件，会一行行增加
+    |       |--label.txt        # 打标文件，会一行行的减少      <--------第一次
+    |       |--label.done.txt   # 打标完成文件，会一行行增加     <----打标注的涉及到的文件
     |       |    
-    |       |--check.txt        # 复检文件，会一条条的被搬运到good/bad里   
-    |       |--good.txt         # 复检正确的文件，会一条条添加
-    |       |--bad.txt          # 复检错误的文件，会一条条添加
+    |       |--check.txt        # 复检文件，会一条条的被搬运到good/bad里   <-------- 第二次做校验
+    |       |--good.txt         # 复检正确的文件，会一条条添加             <-------- 或者是用来做校验用
+    |       |--bad.txt          # 复检错误的文件，会一条条添加             <-------- 得到坏的、好的两拨
     |
-    |-raw.txt           # 最开始的原始文件，是用来给每个人分配label.txt的大库
+    |-raw.txt           # 最开始的原始文件，是用来给每个人分配label.txt的大库 
     |-train.txt         # 从用户的label.txt合并后的文件（靠batch），并为每个人的提供check.txt的大库
     |-train.done.txt    # 从用户的label.done.txt合并后的文件（靠batch）        
 ```    
@@ -53,4 +53,7 @@ everyone!
 复查的时候，会先给这个人分配check.txt，
 然后每次标准，动态更新check.txt(减少第一行)，good.txt或者bad.txt（追加一行）
 
+# 设计和实现
+
+## 
 

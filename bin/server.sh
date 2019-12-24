@@ -21,12 +21,15 @@ backup(){
     if [ ! -d "data/backup" ]; then
         mkdir data/backup
     fi
-    tar czvf  data/backup/backup.$Date.tar.gz data/raw.txt data/train.txt data/train.done.txt data/everyone/
-    echo "备份旧的train.txt\raw.txt、trian.done.txt、everyone目录"
+    backup_file=data/backup/backup.$Date.tar.gz
+    tar czvf  $backup_file data/raw.txt data/train.txt data/train.done.txt data/everyone/ 2>/dev/null
+    echo ">>> 备份了旧的train.txt、raw.txt、trian.done.txt、everyone目录=>$backup_file"
 }
 
 # 先备个份！太危险了！
 backup
+
+echo "打标服务器启动，端口：$1"
 
 nohup \
 gunicorn\

@@ -4,6 +4,11 @@ from commons import utils
 
 logger = logging.getLogger(__name__)
 
+# 过滤空行
+def _readlines(file):
+    lines = file.readlines()
+    return [l for l in lines if l.strip() != ""]
+
 '''
 everyone!
     |
@@ -27,6 +32,8 @@ python的文件处理方式：
     a+ 可读可写，从文件顶部读取内容 从文件底部添加内容 不存在则创建
 '''
 
+# 这个类，是一个通用类，可以完成各种场景，如标注，回滚
+# 核心做的就是把源src的最后一行，搬家到目标dst最后一行，但是为了兼容打标（image+label），增加了一个一个带(image_path,label)的接口
 # 标注，用于把label.txt=>label.done.txt中
 # 也支持回滚，只要把do(image=None)即可，他使用done文件中的最后一行
 class LabelDoneProcessor:
@@ -62,7 +69,7 @@ class LabelDoneProcessor:
             return "文件不存在："+self.src_path
 
         src_file = open(self.src_path, "r+")
-        src_lines = src_file.readlines()
+        src_lines = _readlines(src_file)
         if len(src_lines)==0:
             logger.warning("源src文件[%s]已经没有内容了，无法往目标dst文件搬运了",self.src_path)
             return "到头了，无法回滚了"
@@ -81,13 +88,7 @@ class LabelDoneProcessor:
 
         # 这个不考虑前台传过的内容，只用源src文件的最后一行
         if image is None:
-            try:
-                content = utils.get_rollback_line(last_line)
-            except Exception as e:
-                str = "解析行错误{}:{}".format(last_line, str(e))
-                logger.error(str)
-                dst_file.close()
-                return str
+            content = last_line
         else:
             content = image + " " + label
 
@@ -119,7 +120,7 @@ class AssignFileProcessor:
 
     def process(self):
 
-        lines = self.src_file.readlines()
+        lines = _readlines(self.src_file)
         logger.debug("原始文件%d行",len(lines))
         if self.assign_num >= len(lines):
             logger.debug("需要分配的行数[%d]大于文件行数[%d]",self.assign_num,len(lines))
@@ -140,15 +141,16 @@ class AssignFileProcessor:
         self.close()
 
 
+
 # 专门为打标设计的文件，每次更新"第一行"，更新的时候，按照image去查找，更新对应的label
 class ReadFile:
     def read_one_line(self):
-        lines = self.file.readlines()
+        lines = _readlines(self.file)
         self.file.close()
         if len(lines)==0:
             logger.debug("无法读出最后一行，无数据了")
             return None,-1 # -1意味着没有剩余了
-        logger.debug("读出标签文件中的最后一行：%s",lines[0])
+        logger.debug("读出标签文件中的最后一行：%s",lines[-1])
         return lines[-1].strip(),len(lines) - 1
 
     def __init__(self, file_path):

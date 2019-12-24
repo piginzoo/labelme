@@ -2,12 +2,8 @@
 <head>
     <meta charset="UTF-8">
     <!-- import CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"/>
+    <link rel="stylesheet" href= "{{ url_for('static',filename='js/lib/theme-chalk/index.css') }}"/>
     <link rel="stylesheet" href= "{{ url_for('static',filename='css/style.css') }}"/>
-    <!-- 生产环境版本，优化了尺寸和速度 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/qs/dist/qs.js"></script>
 </head>
 <body>
     <div id="app">
@@ -71,8 +67,6 @@
                             </div>
                         </el-col>
                         <el-col :span="8">
-                                !!! <div v-html="mode"></div>
-
                                 <template v-if="mode=='check'">
                                     <!--用来做判断，是好的样本，还是差的样本-->
                                     <h2>判断正确与否：</h2>
@@ -159,9 +153,11 @@
         <el-container>
 
     </div>
-    <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="{{ url_for('static',filename='js/index.js') }}"></script>
+    <!-- 生产环境版本，优化了尺寸和速度 -->
+    <script src="{{ url_for('static',filename='js/vue.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/lib/index.js') }}" type="module"></script>
+    <script src="{{ url_for('static',filename='js/axios.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/qs.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/index.js') }}" type="module"></script>
 </body>
-
 </html>

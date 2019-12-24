@@ -63,42 +63,6 @@ def get_status(user_name):
     else:
         return True
 
-# 开始标注任务
-@app.route('/start.label',methods=['GET'])
-def start():
-    username = request.args['username']
-    if not get_status(username):
-        # 没有领任务
-        logger.info("[%s]未曾领受任务，启动进程领受任务",username)
-        t = InitialUserSpaceThread(username)
-        t.start()
-        t.join()
-
-    # 已经有任务,获取第一张图片
-    logger.info("邮箱前缀为" + username + "，获取一张图片")
-    line,num = get_one_image(username) #num: -1意味着没有剩余了
-
-    if line is None:
-        logger.info("邮箱前缀为" + username + "没有图片可以标注了")
-        return jsonify({'img_stream':''})
-
-    cols = line.split()
-    logger.debug(cols)
-    if len(cols)==0:
-        logger.warning("标签文件中读出的行为空")
-        return ""
-    if len(cols)==1:
-        image_path = cols[0]
-        label = ""
-    else:
-        image_path = cols[0]
-        label = " ".join(cols[1:])
-
-    img_stream = load_img_base64(image_path)
-    logger.info("[%s]获得[%s]/[%s]",username,image_path,label)
-
-    return jsonify({'img_stream': str(img_stream),'img_path':image_path,'label':label,'remain':num,'mode':conf.mode})
-
 # 这个线程类，用来从大库里领取文件
 class InitialUserSpaceThread(threading.Thread):
     def __init__(self,args):
@@ -115,6 +79,42 @@ class InitialUserSpaceThread(threading.Thread):
             afp.process()
             logger.info("邮箱前缀为" + self.args + "的任务获取成功")
             lock.release()
+
+# 开始标注任务
+@app.route('/start.label',methods=['GET'])
+def start():
+    username = request.args['username']
+    if not get_status(username):
+        # 没有领任务
+        logger.info("[%s]未曾领受任务，启动进程领受任务",username)
+        t = InitialUserSpaceThread(username)
+        t.start()
+        t.join()
+
+    # 已经有任务,获取第一张图片
+    logger.info("邮箱前缀为" + username + "，获取一张图片")
+    line,num = get_one_image(username) #num: -1意味着没有剩余了
+
+    if line is None or line.strip()=="" :
+        logger.info("邮箱前缀为" + username + "没有图片可以标注了")
+        return "" # ""表示任务完成，诡异哈
+
+    cols = line.split()
+    # logger.debug(cols)
+    if len(cols)==0:
+        logger.warning("标签文件中读出的行为空")
+        return ""
+    if len(cols)==1:
+        image_path = cols[0]
+        label = ""
+    else:
+        image_path = cols[0]
+        label = " ".join(cols[1:])
+
+    img_stream = load_img_base64(image_path)
+    logger.info("[%s]获得[%s]/[%s]",username,image_path,label)
+
+    return jsonify({'img_stream': str(img_stream),'img_path':image_path,'label':label,'remain':num,'mode':conf.mode})
 
 # 图片标注
 @app.route('/label',methods=['POST'])

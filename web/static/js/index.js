@@ -53,6 +53,7 @@ new Vue({
                     _this.loading = false;
                     var data = response.data;
                     _this.innerVisible = false;
+                    console.log('data:'+data)
                     if (data == '' || data.remain==-1) {
                         _this.warning_info = '恭喜你，你的任务已完成'
                         return;
