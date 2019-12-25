@@ -37,7 +37,11 @@ everyone!
     |
     |-raw.txt           # 最开始的原始文件，是用来给每个人分配label.txt的大库 
     |-train.txt         # 从用户的label.txt合并后的文件（靠batch），并为每个人的提供check.txt的大库
-    |-train.done.txt    # 从用户的label.done.txt合并后的文件（靠batch）        
+    |-train.done.txt    # 从用户的label.done.txt合并后的文件（靠batch）
+    
+mode:模式决定初始库文件用raw.txt还是train.txt
+    check:   train.txt  ===1000==> everyone/piginzoo/check.txt
+    rotate:  raw.txt    ===1000==> everyone/piginzoo/label.txt            
 ```    
 
 ## 为一个人初始化任务

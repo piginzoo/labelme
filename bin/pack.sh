@@ -27,4 +27,14 @@ if [ -e "data/bad.txt" ]; then
     echo "坏文件们收集完了：data/pack/pack.bad.$Date.tar.gz"
 fi
 
+if [ -e "data/good.txt" ]; then
+    echo "正在收集好的数据：data/good.txt"
+    mkdir data/good.temp
+    cat data/good.txt|awk '{print $1}'|xargs -I _ cp _ data/good.temp
+    tar czvf  data/pack/pack.good.$Date.tar.gz data/good.temp/ data/good.txt
+    rm -rf data/good.temp/
+    echo "坏文件们收集完了：data/pack/pack.good.$Date.tar.gz"
+fi
+
+
 echo "收集完毕！"

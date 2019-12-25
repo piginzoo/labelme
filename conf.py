@@ -30,7 +30,7 @@ mode= MODE_CHECK
 resize=0.3
 
 # 每个人的任务数
-task_num_person = 5
+task_num_person = 100
 
 # data root目录
 data_root = "data"
